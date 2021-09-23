@@ -17,7 +17,7 @@ spec:
         image:
           registry: docker.io
           repository: bitnami/minio
-          tag: 2021.5.27-debian-10-r8
+          tag: latest
         ingress:
           enabled: false
           hostname: minio.local
