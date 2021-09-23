@@ -34,3 +34,51 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
+
+
+
+
+    helm:
+      values: |
+        ## MinIO(R) Gateway configuration
+        nameOverride: "minio-gateway"
+        global:
+          minio:
+            existingSecret: minio-gateway-secret
+        gateway:
+          enabled: true
+          type: azure
+          autoscaling:
+            enabled: true
+            minReplicas: "4"
+            maxReplicas: "8"
+            targetCPU: "60"
+            targetMemory: "60"
+          auth:
+            azure:
+              storageAccountNameExistingSecret: "azure-blob-storage"
+              storageAccountNameExistingSecretKey: "storageAccountName"
+              storageAccountKeyExistingSecret: "azure-blob-storage"
+              storageAccountKeyExistingSecretKey: "storageAccountKey"
+          - name: MINIO_IAM_OPA_URL
+            value: http://minio-opa:8181/v1/data/httpapi/authz
+        image:
+          registry: docker.io
+          repository: bitnami/minio
+          tag: 2021.9.9-debian-10-r8
+        ingress:
+          enabled: false
+          hostname: minio.local
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: "1"
+            memory: 1Gi
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
