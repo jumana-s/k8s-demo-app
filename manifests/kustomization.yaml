@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
 - minio.yaml
-- nginx.yaml
+# - nginx.yaml
 
 
 # # These should be in terraform instead
