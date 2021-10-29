@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: minio
-  namespace: argocd
+  namespace: test
 spec:
   project: default
   destination:
@@ -14,61 +14,37 @@ spec:
     targetRevision: 7.2.0
     helm:
       values: |
-        image:
-          registry: docker.io
-          repository: bitnami/minio
-          tag: latest
-        ingress:
-          enabled: false
-          hostname: minio.local
-        resources:
-          limits:
-            cpu: "1"
-            memory: 1Gi
-        extraEnv:
-          - name: MINIO_IAM_OPA_URL
-            value: http://minio-opa:8181/v1/data/httpapi/authz
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
-
-
-
-
-    helm:
-      values: |
         ## MinIO(R) Gateway configuration
         nameOverride: "minio-gateway"
         global:
           minio:
-            existingSecret: minio-gateway-secret
+            existingSecret: azuresecret
+        auth:
+          rootUser: "minio"
+          rootPassword: "minio123"
         gateway:
           enabled: true
           type: azure
-          autoscaling:
-            enabled: true
-            minReplicas: "4"
-            maxReplicas: "8"
-            targetCPU: "60"
-            targetMemory: "60"
+          replicaCount: 1
           auth:
             azure:
-              storageAccountNameExistingSecret: "azure-blob-storage"
-              storageAccountNameExistingSecretKey: "storageAccountName"
-              storageAccountKeyExistingSecret: "azure-blob-storage"
-              storageAccountKeyExistingSecretKey: "storageAccountKey"
-          - name: MINIO_IAM_OPA_URL
-            value: http://minio-opa:8181/v1/data/httpapi/authz
+              storageAccountNameExistingSecret: "azuresecret"
+              storageAccountNameExistingSecretKey: "azure-storage-account-name"
+              storageAccountKeyExistingSecret: "azuresecret"
+              storageAccountKeyExistingSecretKey: "azure-storage-account-key"
         image:
           registry: docker.io
           repository: bitnami/minio
-          tag: 2021.9.9-debian-10-r8
-        ingress:
-          enabled: false
-          hostname: minio.local
+          tag: 2021.5.27-debian-10-r8
+        podLabels:
+          aadpodidbinding: velero
+        # initContainers:
+        # - name: your-image-name
+        #   image: your-image
+        #   imagePullPolicy: Always
+        #   ports:
+        #     - name: portname
+        #       containerPort: 1234
         resources:
           limits:
             cpu: "1"
@@ -82,3 +58,4 @@ spec:
       selfHeal: true
     syncOptions:
     - CreateNamespace=true
+
