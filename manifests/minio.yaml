@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: minio
-  namespace: test
+  namespace: default
 spec:
   project: default
   destination:
@@ -16,9 +16,6 @@ spec:
       values: |
         ## MinIO(R) Gateway configuration
         nameOverride: "minio-gateway"
-        global:
-          minio:
-            existingSecret: azuresecret
         auth:
           rootUser: "minio"
           rootPassword: "minio123"
@@ -28,23 +25,14 @@ spec:
           replicaCount: 1
           auth:
             azure:
-              storageAccountNameExistingSecret: "azuresecret"
-              storageAccountNameExistingSecretKey: "azure-storage-account-name"
-              storageAccountKeyExistingSecret: "azuresecret"
-              storageAccountKeyExistingSecretKey: "azure-storage-account-key"
+              storageAccountNameExistingSecret: "azure-blob-storage"
+              storageAccountNameExistingSecretKey: "storageAccountName"
+              storageAccountKeyExistingSecret: "azure-blob-storage"
+              storageAccountKeyExistingSecretKey: "storageAccountKey"
         image:
           registry: docker.io
           repository: bitnami/minio
           tag: 2021.5.27-debian-10-r8
-        podLabels:
-          aadpodidbinding: velero
-        # initContainers:
-        # - name: your-image-name
-        #   image: your-image
-        #   imagePullPolicy: Always
-        #   ports:
-        #     - name: portname
-        #       containerPort: 1234
         resources:
           limits:
             cpu: "1"
@@ -56,6 +44,4 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
 
